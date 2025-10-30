@@ -3,7 +3,13 @@ import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// Remove /api from end of URL if present to avoid double /api/api
+const getBaseURL = () => {
+  const url = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  return url.replace(/\/api$/, '');
+};
+
+const API_URL = getBaseURL();
 
 const BackOfficeMaterialManagement = () => {
   const [materialData, setMaterialData] = useState([]);
