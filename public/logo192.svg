@@ -1,0 +1,10 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="96" cy="96" r="88" fill="#059669" stroke="#047857" stroke-width="8"/>
+  
+  <!-- C Letter -->
+  <path d="M132 50 C108 50 84 74 84 96 C84 118 108 142 132 142" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Cutbend Text -->
+  <text x="96" y="160" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="white">CUTBEND</text>
+</svg>

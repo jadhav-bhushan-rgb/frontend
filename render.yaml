@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: cutbend-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build:production
+    staticPublishPath: ./build
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REACT_APP_API_URL
+        value: https://cutbend-backend.onrender.com/api
+      - key: REACT_APP_CLIENT_URL
+        value: https://cutbend-frontend.onrender.com
