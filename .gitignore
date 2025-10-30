@@ -3,5 +3,10 @@ node_modules
 .env.local
 .env.production
 build
+build/
 *.zip
+*.bat
 .DS_Store
+package-lock.json
+render.yaml
+frontend.zip
