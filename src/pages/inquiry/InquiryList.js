@@ -42,30 +42,40 @@ const InquiryList = ({ showQuotations = false }) => {
       
       if (response.data.success) {
         // Transform the data to match the component's expected format
-        const transformedInquiries = response.data.inquiries.map(inquiry => ({
-          id: inquiry.inquiryNumber,
-          shortId: inquiry.inquiryNumber.replace('INQ', '').slice(-4),
-          status: inquiry.status,
-          company: inquiry.customer?.companyName || 'N/A',
-          contact: `${inquiry.customer?.firstName || ''} ${inquiry.customer?.lastName || ''}`.trim() || 'N/A',
-          files: inquiry.files?.length || 0,
-          parts: inquiry.parts?.length || 0,
-          createdAt: new Date(inquiry.createdAt).toLocaleDateString('en-US', {
+        const transformedInquiries = response.data.inquiries.map(inquiry => {
+          const date = new Date(inquiry.createdAt);
+          const dateStr = date.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
-          }),
-          views: 0,
-          _id: inquiry._id, // Keep the MongoDB ID for API calls
-          // Add quotation information
-          quotation: inquiry.quotation ? {
-            id: inquiry.quotation._id,
-            quotationNumber: inquiry.quotation.quotationNumber,
-            status: inquiry.quotation.status,
-            totalAmount: inquiry.quotation.totalAmount,
-            validUntil: inquiry.quotation.validUntil
-          } : null
-        }));
+          });
+          const timeStr = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          });
+          
+          return {
+            id: inquiry.inquiryNumber,
+            shortId: inquiry.inquiryNumber.replace('INQ', '').slice(-4),
+            status: inquiry.status,
+            company: inquiry.customer?.companyName || 'N/A',
+            contact: `${inquiry.customer?.firstName || ''} ${inquiry.customer?.lastName || ''}`.trim() || 'N/A',
+            files: inquiry.files?.length || 0,
+            parts: inquiry.parts?.length || 0,
+            createdAt: `${dateStr} at ${timeStr}`,
+            views: 0,
+            _id: inquiry._id, // Keep the MongoDB ID for API calls
+            // Add quotation information
+            quotation: inquiry.quotation ? {
+              id: inquiry.quotation._id,
+              quotationNumber: inquiry.quotation.quotationNumber,
+              status: inquiry.quotation.status,
+              totalAmount: inquiry.quotation.totalAmount,
+              validUntil: inquiry.quotation.validUntil
+            } : null
+          };
+        });
         
         setInquiries(transformedInquiries);
       } else {

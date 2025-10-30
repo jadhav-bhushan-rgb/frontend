@@ -21,33 +21,19 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
     ? [...new Set(materialData.map(m => m.material))]
     : ['Zintec', 'Mild Steel', 'Stainless Steel', 'Aluminum', 'Galvanized Steel'];
   
-  console.log('🎯 Available materials for dropdown:', availableMaterials);
+  // Extract ALL unique thicknesses from database (not filtered by material)
+  const availableThicknesses = materialData.length > 0
+    ? [...new Set(materialData.map(m => m.thickness))].sort((a, b) => parseFloat(a) - parseFloat(b))
+    : ['0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '4.0', '5.0'];
   
-  // Get available thicknesses and grades for currently selected material
-  const getOptionsForMaterial = (selectedMaterial) => {
-    if (materialData.length === 0) {
-      return {
-        thicknesses: ['0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '4.0', '5.0'],
-        grades: ['Grade A', 'Grade B', 'Grade C', 'Grade D']
-      };
-    }
-    
-    // Find all entries with this material
-    const materialEntries = materialData.filter(m => m.material === selectedMaterial);
-    
-    if (materialEntries.length === 0) {
-      // Fallback to all available options
-      return {
-        thicknesses: [...new Set(materialData.map(m => m.thickness))],
-        grades: [...new Set(materialData.map(m => m.grade).filter(g => g))]
-      };
-    }
-    
-    return {
-      thicknesses: [...new Set(materialEntries.map(m => m.thickness))],
-      grades: [...new Set(materialEntries.map(m => m.grade).filter(g => g))]
-    };
-  };
+  // Extract ALL unique grades from database (not filtered by material)
+  const availableGrades = materialData.length > 0
+    ? [...new Set(materialData.map(m => m.grade).filter(g => g && g.trim() !== ''))]
+    : ['A', 'B', 'C', 'D'];
+  
+  console.log('🎯 Available materials for dropdown:', availableMaterials);
+  console.log('📏 Available thicknesses for dropdown:', availableThicknesses);
+  console.log('⭐ Available grades for dropdown:', availableGrades);
 
   const handleEdit = (fileId, file) => {
     setEditingId(fileId);
@@ -94,21 +80,6 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
     // Ensure proper character encoding for text fields
     const processedValue = typeof value === 'string' ? value.trim() : value;
     
-    // If material is changed, auto-populate thickness and grade
-    if (field === 'material' && materialData.length > 0) {
-      const selectedMaterialEntry = materialData.find(m => m.material === value);
-      
-      if (selectedMaterialEntry) {
-        setEditingValues(prev => ({
-          ...prev,
-          material: value,
-          thickness: selectedMaterialEntry.thickness,
-          grade: selectedMaterialEntry.grade || prev.grade
-        }));
-        return;
-      }
-    }
-    
     setEditingValues(prev => ({
       ...prev,
       [field]: processedValue
@@ -134,12 +105,46 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
 
   return (
     <div className="mt-6 bg-white rounded-lg shadow">
-      <style jsx>{`
-        .custom-select-scroll {
+      <style>{`
+        /* Dropdown scrolling styles */
+        .scrollable-dropdown {
           max-height: 38px;
+          cursor: pointer;
         }
-        .custom-select-scroll option {
-          padding: 8px;
+        
+        /* Firefox scrollbar */
+        .scrollable-dropdown {
+          scrollbar-width: thin;
+          scrollbar-color: #9CA3AF #F3F4F6;
+        }
+        
+        /* Webkit browsers (Chrome, Safari, Edge) scrollbar */
+        .scrollable-dropdown::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        .scrollable-dropdown::-webkit-scrollbar-track {
+          background: #F3F4F6;
+          border-radius: 4px;
+        }
+        
+        .scrollable-dropdown::-webkit-scrollbar-thumb {
+          background: #9CA3AF;
+          border-radius: 4px;
+        }
+        
+        .scrollable-dropdown::-webkit-scrollbar-thumb:hover {
+          background: #6B7280;
+        }
+        
+        /* Option styling */
+        .scrollable-dropdown option {
+          padding: 8px 12px;
+          font-size: 14px;
+        }
+        
+        .scrollable-dropdown option:hover {
+          background-color: #EFF6FF;
         }
       `}</style>
       <div className="px-6 py-4 border-b border-gray-200">
@@ -255,7 +260,8 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
                       <select
                         value={editingValues.material || ''}
                         onChange={(e) => handleInputChange('material', e.target.value)}
-                        className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm custom-select-scroll"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm custom-select-scroll scrollable-dropdown"
+                        size="1"
                       >
                         {availableMaterials.map((material) => (
                           <option key={material} value={material}>{material}</option>
@@ -272,9 +278,10 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
                       <select
                         value={editingValues.thickness || ''}
                         onChange={(e) => handleInputChange('thickness', e.target.value)}
-                        className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm custom-select-scroll"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm custom-select-scroll scrollable-dropdown"
+                        size="1"
                       >
-                        {getOptionsForMaterial(editingValues.material).thicknesses.map((thickness) => (
+                        {availableThicknesses.map((thickness) => (
                           <option key={thickness} value={thickness}>{thickness}mm</option>
                         ))}
                       </select>
@@ -289,10 +296,11 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
                       <select
                         value={editingValues.grade || ''}
                         onChange={(e) => handleInputChange('grade', e.target.value)}
-                        className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm custom-select-scroll"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm custom-select-scroll scrollable-dropdown"
+                        size="1"
                       >
                         <option value="">Select Grade</option>
-                        {getOptionsForMaterial(editingValues.material).grades.map((grade) => (
+                        {availableGrades.map((grade) => (
                           <option key={grade} value={grade}>{grade}</option>
                         ))}
                       </select>
@@ -423,16 +431,10 @@ const PDFFileTable = ({ files, onUpdateFile, onDeleteFile, materialData = [] }) 
         </div>
       </div>
       
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
         <p className="text-sm text-gray-600">
-          {files.length} file{files.length !== 1 ? 's' : ''} uploaded
+          {files.length} file{files.length !== 1 ? 's' : ''} uploaded • Click the edit icon to modify file specifications
         </p>
-        <button
-          type="button"
-          className="bg-blue-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-        >
-          SAVE
-        </button>
       </div>
     </div>
   );

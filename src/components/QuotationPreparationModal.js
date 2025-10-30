@@ -177,23 +177,23 @@ const QuotationPreparationModal = ({
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Upload Quotation PDF (Optional)</h3>
             <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
                 dragActive 
-                  ? 'border-blue-400 bg-blue-50' 
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-blue-500 bg-blue-50 shadow-lg' 
+                  : 'border-gray-500 bg-gray-50 hover:border-gray-600 hover:bg-gray-100 hover:shadow-md'
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
-              <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-sm text-gray-600 mb-2">
-                Drag and drop your quotation PDF here, or
+              <CloudArrowUpIcon className="mx-auto h-16 w-16 text-gray-600 mb-4" />
+              <p className="text-base text-gray-800 font-medium mb-2">
+                Click to upload quotation PDF or drag and drop
               </p>
               <label className="cursor-pointer">
-                <span className="text-blue-600 hover:text-blue-700 font-medium">
-                  browse files
+                <span className="inline-block px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors shadow-sm">
+                  Browse Files
                 </span>
                 <input
                   type="file"
@@ -203,7 +203,7 @@ const QuotationPreparationModal = ({
                   className="hidden"
                 />
               </label>
-              <p className="text-xs text-gray-500 mt-2">Only PDF files are allowed</p>
+              <p className="text-sm text-gray-600 mt-3 font-medium">Only PDF files are allowed</p>
             </div>
 
             {/* Uploaded Files */}

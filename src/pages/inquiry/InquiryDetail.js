@@ -12,6 +12,13 @@ const InquiryDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showQuotationModal, setShowQuotationModal] = useState(false);
 
+  // Helper function to remove file extension from part name
+  const removeFileExtension = (filename) => {
+    if (!filename) return 'N/A';
+    // Remove common file extensions (.dxf, .DXF, .dwg, .DWG, .pdf, .PDF, etc.)
+    return filename.replace(/\.(dxf|dwg|pdf|step|stp|iges|igs|stl|xlsx|xls|zip|jpg|jpeg|png|tiff)$/i, '');
+  };
+
   // Function to download Technical Specifications as Excel
   const handleDownloadExcel = () => {
     if (!inquiry) return;
@@ -32,7 +39,9 @@ const InquiryDetail = () => {
       // Add parts data
       if (inquiry.specifications && inquiry.specifications.length > 0) {
         inquiry.specifications.forEach(part => {
-          const partName = part.partRef || part.partName || part.fileName || 'N/A';
+          // Remove file extension from part name
+          const rawPartName = part.partRef || part.partName || part.fileName || 'N/A';
+          const partName = removeFileExtension(rawPartName);
           const material = part.material || 'N/A';
           const thickness = part.thickness || 'N/A';
           const grade = part.grade || 'N/A';

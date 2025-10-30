@@ -550,7 +550,7 @@ const QuotationForm = ({ inquiry, inquiries = [], onClose, onSuccess }) => {
                   Switch to Manual Entry
                 </button>
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+              <div className="border-2 border-dashed border-gray-500 bg-gray-50 rounded-lg p-8 text-center hover:border-gray-600 hover:bg-gray-100 hover:shadow-md transition-all duration-200">
                 <input
                   type="file"
                   accept=".pdf"
@@ -562,13 +562,13 @@ const QuotationForm = ({ inquiry, inquiries = [], onClose, onSuccess }) => {
                   htmlFor="quotation-file-upload"
                   className="cursor-pointer flex flex-col items-center"
                 >
-                  <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="mx-auto h-16 w-16 text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-base text-gray-800 font-medium mb-2">
                     {uploadedQuotationFile ? uploadedQuotationFile.name : 'Click to upload quotation PDF or drag and drop'}
                   </p>
-                  <p className="text-xs text-gray-500">Only PDF files are allowed</p>
+                  <p className="text-sm text-gray-600 font-medium">Only PDF files are allowed</p>
                 </label>
               </div>
               {uploadedQuotationFile && (
