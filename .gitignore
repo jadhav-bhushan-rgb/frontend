@@ -8,5 +8,4 @@ build/
 *.bat
 .DS_Store
 package-lock.json
-render.yaml
 frontend.zip
