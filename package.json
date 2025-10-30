@@ -23,9 +23,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npm run postbuild",
-    "postbuild": "cp public/_redirects build/_redirects || copy public\\_redirects build\\_redirects || echo '_redirects copied'",
-    "build:production": "react-scripts build && npm run postbuild",
+    "build": "react-scripts build",
+    "postbuild": "echo 'Build completed'",
+    "build:production": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
