@@ -71,16 +71,8 @@ const Dashboard = () => {
       const response = await quotationAPI.getQuotations();
       console.log('Quotations response:', response.data);
       if (response.data.success) {
-        const quotations = response.data.quotations || [];
-        setQuotations(quotations);
-        console.log('Quotations set:', quotations.length);
-        console.log('Quotations with PDF:', quotations.filter(q => q.quotationPdf).length);
-        quotations.forEach((q, i) => {
-          console.log(`Quotation ${i+1} (${q.quotationNumber}):`, {
-            hasQuotationPdf: !!q.quotationPdf,
-            quotationPdf: q.quotationPdf
-          });
-        });
+        setQuotations(response.data.quotations || []);
+        console.log('Quotations set:', response.data.quotations?.length || 0);
       } else {
         console.error('Quotations API failed:', response.data.message);
       }
@@ -629,23 +621,6 @@ const Dashboard = () => {
                                 <span className="text-lg font-semibold text-gray-900">
                                   ₹{quotation.totalAmount.toLocaleString()}
                                 </span>
-                              )}
-                              {quotation.quotationPdf && (
-                                <button
-                                  onClick={() => {
-                                    console.log('Opening quotation PDF:', quotation.quotationPdf);
-                                    const pdfUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/quotations/${quotation.quotationPdf}`;
-                                    console.log('PDF URL:', pdfUrl);
-                                    window.open(pdfUrl, '_blank');
-                                  }}
-                                  className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                                  title="View Quote PDF"
-                                >
-                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                  </svg>
-                                  Quote PDF
-                                </button>
                               )}
                             </div>
                           </div>

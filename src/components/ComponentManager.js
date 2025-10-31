@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { inquiryAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -16,6 +17,7 @@ const ComponentManager = ({ inquiryId, onComponentsChange }) => {
   console.log('inquiryId:', inquiryId);
   console.log('onComponentsChange:', onComponentsChange);
   
+  const { user } = useAuth();
   const [editingId, setEditingId] = useState(null);
   const [editingValues, setEditingValues] = useState({}); // Store individual editing values
   const [newComponent, setNewComponent] = useState({
@@ -35,12 +37,20 @@ const ComponentManager = ({ inquiryId, onComponentsChange }) => {
 
   // Fetch components for this inquiry
   const { data: components = [], isLoading, error } = useQuery(
-    ['components', inquiryId],
+    ['components', inquiryId, user?.role],
     async () => {
       if (!inquiryId) return [];
       
       console.log('🔍 ComponentManager - Fetching inquiry:', inquiryId);
-      const response = await inquiryAPI.getInquiryAdmin(inquiryId);
+      
+      // Check user role to use appropriate endpoint
+      const isAdmin = user?.role === 'admin' || user?.role === 'backoffice' || user?.role === 'subadmin';
+      console.log('🔍 ComponentManager - User role:', user?.role, 'Is admin:', isAdmin);
+      
+      // Use admin endpoint for admin/backoffice/subadmin, regular endpoint for customers
+      const response = isAdmin 
+        ? await inquiryAPI.getInquiryAdmin(inquiryId)
+        : await inquiryAPI.getInquiry(inquiryId);
       
       console.log('🔍 ComponentManager - Full inquiry response:', response.data);
       console.log('🔍 ComponentManager - Inquiry data:', response.data.inquiry);
@@ -59,7 +69,7 @@ const ComponentManager = ({ inquiryId, onComponentsChange }) => {
       
       return response.data.inquiry.parts || [];
     },
-    { enabled: !!inquiryId }
+    { enabled: !!inquiryId && !!user }
   );
 
   // Update inquiry mutation

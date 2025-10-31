@@ -35,8 +35,17 @@ const QuotationResponse = () => {
         if ((!quotationData.items || quotationData.items.length === 0) && quotationData.inquiryId) {
           console.log('Quotation has no items, fetching inquiry parts as fallback...');
           console.log('Inquiry ID:', quotationData.inquiryId);
+          
+          // Check user role to use appropriate endpoint
+          const isAdmin = user?.role === 'admin' || user?.role === 'backoffice' || user?.role === 'subadmin';
+          console.log('User role:', user?.role, 'Is admin:', isAdmin);
+          
           try {
-            const inquiryResponse = await inquiryAPI.getInquiryAdmin(quotationData.inquiryId);
+            // Use admin endpoint for admin/backoffice/subadmin, regular endpoint for customers
+            const inquiryResponse = isAdmin 
+              ? await inquiryAPI.getInquiryAdmin(quotationData.inquiryId)
+              : await inquiryAPI.getInquiry(quotationData.inquiryId);
+            
             console.log('Inquiry response:', inquiryResponse.data);
             
             if (inquiryResponse.data.success && inquiryResponse.data.inquiry?.parts) {
@@ -67,35 +76,37 @@ const QuotationResponse = () => {
             }
           } catch (inquiryError) {
             console.error('Failed to fetch inquiry parts:', inquiryError);
-            // Try regular inquiry endpoint as fallback
-            try {
-              const inquiryResponseRegular = await inquiryAPI.getInquiry(quotationData.inquiryId);
-              if (inquiryResponseRegular.data.success && inquiryResponseRegular.data.inquiry?.parts) {
-                console.log('Found inquiry parts (regular endpoint):', inquiryResponseRegular.data.inquiry.parts);
-                const parts = inquiryResponseRegular.data.inquiry.parts;
-                const totalAmount = quotationData.totalAmount || 0;
-                const totalQuantity = parts.reduce((sum, part) => sum + (part.quantity || 0), 0);
-                
-                quotationData.items = parts.map(part => {
-                  const quantity = part.quantity || 0;
-                  const itemTotalPrice = totalQuantity > 0 ? (totalAmount * quantity) / totalQuantity : totalAmount / parts.length;
-                  const unitPrice = quantity > 0 ? itemTotalPrice / quantity : itemTotalPrice;
+            // If admin endpoint failed, try regular endpoint as fallback (for edge cases)
+            if (isAdmin) {
+              try {
+                const inquiryResponseRegular = await inquiryAPI.getInquiry(quotationData.inquiryId);
+                if (inquiryResponseRegular.data.success && inquiryResponseRegular.data.inquiry?.parts) {
+                  console.log('Found inquiry parts (regular endpoint fallback):', inquiryResponseRegular.data.inquiry.parts);
+                  const parts = inquiryResponseRegular.data.inquiry.parts;
+                  const totalAmount = quotationData.totalAmount || 0;
+                  const totalQuantity = parts.reduce((sum, part) => sum + (part.quantity || 0), 0);
                   
-                  return {
-                    partRef: part.partRef || part.partName || 'N/A',
-                    material: part.material || 'N/A',
-                    thickness: part.thickness || 'N/A',
-                    quantity: quantity,
-                    unitPrice: unitPrice,
-                    totalPrice: itemTotalPrice,
-                    remark: part.remarks || ''
-                  };
-                });
-                toast.success('Parts data loaded from inquiry');
+                  quotationData.items = parts.map(part => {
+                    const quantity = part.quantity || 0;
+                    const itemTotalPrice = totalQuantity > 0 ? (totalAmount * quantity) / totalQuantity : totalAmount / parts.length;
+                    const unitPrice = quantity > 0 ? itemTotalPrice / quantity : itemTotalPrice;
+                    
+                    return {
+                      partRef: part.partRef || part.partName || 'N/A',
+                      material: part.material || 'N/A',
+                      thickness: part.thickness || 'N/A',
+                      quantity: quantity,
+                      unitPrice: unitPrice,
+                      totalPrice: itemTotalPrice,
+                      remark: part.remarks || ''
+                    };
+                  });
+                  toast.success('Parts data loaded from inquiry');
+                }
+              } catch (secondError) {
+                console.error('Failed to fetch inquiry parts (second attempt):', secondError);
+                // Continue without inquiry parts
               }
-            } catch (secondError) {
-              console.error('Failed to fetch inquiry parts (second attempt):', secondError);
-              // Continue without inquiry parts
             }
           }
         }
